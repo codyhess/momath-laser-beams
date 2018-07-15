@@ -43,7 +43,7 @@ let Beam = (x, y, xR, yD, color) => {
 			[x+(2*xR*-1),y+(2*yD*-1)],
 			[x+(2.5*xR*-1),y+(2.5*yD*-1)],
 		],
-		scooch: function() {
+		scooch: function(users) {
 			for (let i=this.points.length-1; i>=0; i--) {
 				if (i === 0) {
 					if (xR === 1 && this.points[i][0] > 17) {
@@ -54,13 +54,33 @@ let Beam = (x, y, xR, yD, color) => {
 						yD = -1;
 						this.color = 'red';
 					}
-					if (xR === -1 && this.points[i][0] < 1) {
+					if (xR === -1 && this.points[i][0] < 0) {
 						xR = 1;
 						this.color = 'blue';
 					}
-					if (yD === -1 && this.points[i][1] < 1) {
+					if (yD === -1 && this.points[i][1] < .5) {
 						yD = 1;
 						this.color = 'yellow';
+					}
+					for (let j=0; j<users.length; j++) {
+						let x = Math.floor(users[j].x / BS);
+						let y = Math.floor(users[j].y / BS);
+						if (this.points[i][0] === x
+							&& this.points[i][1] === y) {
+							yD *= -1;
+						}
+						else if (this.points[i][0] === x
+							&& this.points[i][1] === y+1) {
+							yD *= -1;
+						}
+						else if (this.points[i][0] === x+.5
+							&& this.points[i][1] === y+.5) {
+							xR *= -1;
+						}
+						else if (this.points[i][0] === x-.5
+							&& this.points[i][1] === y+.5) {
+							xR *= -1;
+						}
 					}
 
 					this.points[i][0] = xR === 1 ? this.points[i][0]+.5 : this.points[i][0]-.5;
@@ -89,9 +109,8 @@ pb.draw = function (floor, p) {
 				(b.points[i+1][0]*BS)+16,
 				(b.points[i+1][1]*BS)
 				);
-			console.log(b.points[i][0]*BS);
 		}
-		b.scooch();
+		b.scooch(floor.users);
 	}
 
   this.clear();
@@ -99,10 +118,8 @@ pb.draw = function (floor, p) {
 	drawBeam(b2);
 	drawBeam(b3);
 	drawBeam(b4);
-	for (let i=0; i<floor.users.length; i++) {
-		continue;
-	}
-	b1.scooch();
+
+	// draw the borders
 	this.stroke('blue');
 	this.line(0,0,0,575);
 	this.stroke('yellow');
